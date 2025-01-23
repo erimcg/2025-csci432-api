@@ -25,7 +25,7 @@ router.post('/user', async (req, res) => {
 })
 
 // log user in
-router.post('/users/login', async (req, res) => {
+router.post('/user/login', async (req, res) => {
 
     try {
         const user = await User.findByCredentials(req.body.email, req.body.password)
@@ -37,7 +37,7 @@ router.post('/users/login', async (req, res) => {
 })
 
 // Log out user
-router.post("/users/logout", auth, async (req, res) => {
+router.post("/user/logout", auth, async (req, res) => {
     try {
         req.user.tokens = req.user.tokens.filter((token) => {
             return token.token !== req.token
@@ -51,14 +51,14 @@ router.post("/users/logout", auth, async (req, res) => {
 })
 
 // Get user account
-router.get("/users/me", auth, async (req, res) => {
+router.get("/user", auth, async (req, res) => {
     res.send(req.user)
 })
 
 
 
 // Modify user account
-router.patch('/users/me', auth, async (req, res) => {
+router.patch('/user', auth, async (req, res) => {
     const mods = req.body
     const props = Object.keys(mods)
     const modifiable = ['name', 'password']
@@ -79,7 +79,7 @@ router.patch('/users/me', auth, async (req, res) => {
 })
 
 // Delete user account
-router.delete('/users/me', auth, async (req, res) => {
+router.delete('/user', auth, async (req, res) => {
     try {
         await req.user.deleteOne()
         res.send(req.user)
@@ -98,7 +98,7 @@ const upload = multer({
     }
 })
 
-router.post('/users/me/avatar', auth, upload.single('avatar'), async (req, res) => {
+router.post('/user/avatar', auth, upload.single('avatar'), async (req, res) => {
     const buffer = await sharp(req.file.buffer)
         .resize({ width: 250, height: 250 })
         .png()
@@ -112,7 +112,7 @@ router.post('/users/me/avatar', auth, upload.single('avatar'), async (req, res) 
     res.status(400).send({ error: error.message })
 })
 
-router.get('/users/me/avatar', auth, async (req, res) => {
+router.get('/user/avatar', auth, async (req, res) => {
     const user = req.user
     if (!user.avatar) {
         return res.status(404).send()
@@ -121,7 +121,7 @@ router.get('/users/me/avatar', auth, async (req, res) => {
     res.send(user.avatar)
 })
 
-router.delete('/users/me/avatar', auth, async (req, res) => {
+router.delete('/user/avatar', auth, async (req, res) => {
     req.user.avatar = undefined
     await req.user.save()
     res.send()
