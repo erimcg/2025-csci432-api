@@ -1,6 +1,6 @@
 const express = require('express')
 const User = require('../models/user')
-const { sendWelcomeEmail } = require('../emails/join.js')
+//const { sendWelcomeEmail } = require('../emails/join.js')
 const auth = require('../middleware/auth')
 const multer = require('multer')
 const sharp = require('sharp')
