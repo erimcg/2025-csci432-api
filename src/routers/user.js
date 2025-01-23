@@ -8,16 +8,18 @@ const sharp = require('sharp')
 const router = new express.Router()
 
 // Add a new user
-router.post('/users', async (req, res) => {
-    const user = new User(req.body)
+router.post('/user', async (req, res) => {
 
     try {
+        const user = new User(req.body)
+
         await user.save()
         const token = await user.generateAuthToken()
-        //sendWelcomeEmail(user.email, user.name)
-        res.status(201).send({ user, token })
 
-    } catch (error) {
+        res.status(201).send({ user, token })
+    }
+    catch (error) {
+        console.log(error)
         res.status(400).send(error)
     }
 })
