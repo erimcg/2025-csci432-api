@@ -81,7 +81,8 @@ router.patch('/user', auth, async (req, res) => {
 // Delete user account
 router.delete('/user', auth, async (req, res) => {
     try {
-        await req.user.deleteOne()
+        console.log(req.user)
+        await User.deleteOne({_id: req.user._id})
         res.send(req.user)
     } catch (e) {
         res.status(500).send()
