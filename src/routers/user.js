@@ -55,13 +55,11 @@ router.get("/user", auth, async (req, res) => {
     res.send(req.user)
 })
 
-
-
 // Modify user account
 router.patch('/user', auth, async (req, res) => {
     const mods = req.body
     const props = Object.keys(mods)
-    const modifiable = ['name', 'password']
+    const modifiable = ['firstName', 'lastName', 'userName', 'password', 'email']
     const isValid = props.every((prop) => modifiable.includes(prop))
 
     if (!isValid) {
@@ -89,43 +87,5 @@ router.delete('/user', auth, async (req, res) => {
     }
 })
 
-const upload = multer({
-    limits: { fileSize: 1000000 },
-    fileFilter(req, file, callback) {
-        if (!file.originalname.match(/\.(jpg|jpeg|png)/)) {
-            return callback(new Error('File must be an image'))
-        }
-        callback(undefined, true)
-    }
-})
-
-router.post('/user/avatar', auth, upload.single('avatar'), async (req, res) => {
-    const buffer = await sharp(req.file.buffer)
-        .resize({ width: 250, height: 250 })
-        .png()
-        .toBuffer()
-
-    req.user.avatar = buffer
-    await req.user.save()
-    res.send()
-
-}, (error, req, res, next) => {
-    res.status(400).send({ error: error.message })
-})
-
-router.get('/user/avatar', auth, async (req, res) => {
-    const user = req.user
-    if (!user.avatar) {
-        return res.status(404).send()
-    }
-    res.set('Content-Type', 'image/png')
-    res.send(user.avatar)
-})
-
-router.delete('/user/avatar', auth, async (req, res) => {
-    req.user.avatar = undefined
-    await req.user.save()
-    res.send()
-})
 
 module.exports = router
