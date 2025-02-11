@@ -8,14 +8,14 @@ router.post('/message', auth, async (req, res) => {
     const user = req.user
 
     try {
-        const post = new Message({
+        const message = new Message({
             ...req.body,
             sender: user._id
         })
 
-        await post.save()
+        await message.save()
 
-        res.status(201).send(post)
+        res.status(201).send(message)
         return
     }
     catch (e) {
