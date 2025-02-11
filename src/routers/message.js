@@ -68,6 +68,7 @@ router.get('/messages', auth, async (req, res) => {
                 "text": 1,
                 "updatedAt": 1,
 
+                "sender._id": 1,
                 "sender.firstName": 1,
                 "sender.lastName": 1
             }
