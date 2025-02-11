@@ -54,23 +54,29 @@ router.get('/messages', auth, async (req, res) => {
 
     const pipeline = Message.aggregate([
         { $match: filter },
-        {
-            $lookup: {
-                from: "users",
-                foreignField: "_id",
+        { $lookup: {
                 localField: "sender",
-                as: "sender"
+                as: "sender",
+                from: "users",
+                foreignField: "_id"
+            }
+        },
+        {
+            $set: {
+                sender: { $arrayElemAt: ["$sender", 0] }
             }
         },
         {
             $project: {
-                "_id": 1,
-                "text": 1,
-                "updatedAt": 1,
+                messageId: "$_id",
+                _id: 0,
+                text: 1,
+                updatedAt: 1,
 
-                "sender._id": 1,
-                "sender.firstName": 1,
-                "sender.lastName": 1
+                senderId: "$sender._id",
+                senderName: {
+                    $concat: ["$sender.firstName", ' ', "$sender.lastName" ]
+                },
             }
         }
     ])
