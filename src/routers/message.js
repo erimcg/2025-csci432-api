@@ -86,15 +86,11 @@ router.get('/messages', auth, async (req, res) => {
 
     try {
         const results = await pipeline.exec()
-
-        const count = await Message.aggregate([{ $match: filter }]).count("total").exec()
-        const total = (count.length > 0) ? count[0].total : 0
-
-        res.send({ results, total })
-        return
-    } catch (e) {
+        res.send(results)
+    }
+    catch (e) {
         console.log(e)
-        res.status(500).send()
+        res.status(400).send()
     }
 })
 

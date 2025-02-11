@@ -20,6 +20,7 @@ messageSchema.methods.toJSON = function () {
     const message = this
     const messageObject = message.toObject()
     delete messageObject.__v
+    delete messageObject.createdAt
     return messageObject
 }
 
