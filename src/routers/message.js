@@ -35,8 +35,6 @@ router.get('/messages', auth, async (req, res) => {
         $and: []
     }
 
-    const now = new Date()
-
     if (req.query.hasOwnProperty('before')) {
         filter.$and.push({ updatedAt: { $lt: new Date(req.query.before) } })
     }
@@ -97,7 +95,26 @@ router.get('/messages', auth, async (req, res) => {
     }
     catch (e) {
         console.log(e)
-        res.status(400).send()
+        res.status(500).send()
+    }
+})
+
+router.get('/messages/count', auth, async (req, res) => {
+    let filter = {}
+
+    if (req.query.hasOwnProperty('after')) {
+        filter.updatedAt = { $gt: new Date(req.query.after) }
+    }
+
+    try {
+        const count = await Message.aggregate([{ $match: filter }]).count("total").exec()
+        const total = (count.length > 0) ? count[0].total : 0
+
+        res.send({ total })
+    }
+    catch (e) {
+        console.log(e)
+        res.status(500).send()
     }
 })
 
