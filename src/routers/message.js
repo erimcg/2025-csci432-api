@@ -48,7 +48,7 @@ router.get('/messages', auth, async (req, res) => {
         filter = {}
     }
 
-    console.log(JSON.stringify(filter))
+    //console.log(JSON.stringify(filter))
 
     const pipeline = Message.aggregate([
         { $match: filter },
