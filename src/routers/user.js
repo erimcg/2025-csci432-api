@@ -24,7 +24,7 @@ router.post('/user', async (req, res) => {
     }
 })
 
-// log user in
+// Log user in
 router.post('/user/login', async (req, res) => {
 
     try {
@@ -85,6 +85,80 @@ router.delete('/user', auth, async (req, res) => {
     } catch (e) {
         res.status(500).send()
     }
+})
+
+/* Search users
+    query params:
+        search=firstName|lastname|userName:text
+        sortBy=property:asc|desc 
+        skip=#
+        limit=#
+*/
+router.get('/users', auth, async (req, res) => {
+    let filter = {}
+
+    try {
+        let search = []
+        if (req.query.search) {
+            let args = req.query.search.split(':')
+            let text = args[1]
+            const fields = args[0].split('|')
+            for (let field of fields) {
+                let obj = {}
+                obj[field] = { $regex: text, $options: 'i' }
+                search.push(obj)
+            }
+        }
+
+        console.log(search)
+        if (search.length > 0) {
+            filter = { $or: search }
+        }
+        console.log(filter)
+    }
+    catch (e) {
+        console.log(e)
+        res.status(500).send(e)
+    }
+
+    const pipeline = User.aggregate([
+        { $match: filter },
+        { $project: {
+                "firstName": 1,
+                "lastName": 1,
+                "userName": 1,
+                "_id": 1
+            }
+        },
+    ])
+
+    if (req.query.sortBy) {
+        const parts = req.query.sortBy.split(':')
+        const sort = {}
+        sort[parts[0]] = (parts[1] === 'asc') ? 1 : -1
+        pipeline.append({ $sort: sort })
+    }
+
+    if (req.query.skip) {
+        pipeline.append({ $skip: parseInt(req.query.skip) })
+    }
+
+    if (req.query.limit) {
+        pipeline.append({ $limit: parseInt(req.query.limit) })
+    }
+
+    try {
+        const users = await pipeline.exec()
+        //const count = await User.aggregate([{ $match: filter }]).count("total").exec()
+        //const total = (count.length > 0) ? count[0].total : 0
+
+        res.send(users)
+        return
+    }
+    catch (e) {
+        console.log(e)
+        res.status(500).send()
+    }    
 })
 
 
