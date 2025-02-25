@@ -35,21 +35,16 @@ router.post('/message', auth, async (req, res) => {
 */
 router.get('/messages', auth, async (req, res) => {
 
-    let filter = {
-        $and: []
-    }
+    let filter = {}
+
+    filter.$and = [{ receiver: null }]
 
     if (req.query.hasOwnProperty('before')) {
         filter.$and.push({ updatedAt: { $lt: new Date(req.query.before) } })
     }
 
-
     if (req.query.hasOwnProperty('after')) {
         filter.$and.push({ updatedAt: { $gt: new Date(req.query.after) } })    
-    }
-
-    if (filter["$and"].length === 0) {
-        filter = {}
     }
 
     //console.log(JSON.stringify(filter))
@@ -107,6 +102,8 @@ router.get('/messages', auth, async (req, res) => {
 
 router.get('/messages/count', auth, async (req, res) => {
     let filter = {}
+
+    filter.$and = [{ receiver: null }]
 
     if (req.query.hasOwnProperty('after')) {
         filter.updatedAt = { $gt: new Date(req.query.after) }
@@ -264,7 +261,7 @@ router.get('/messages/:id', auth, async (req, res) => {
     }
 })
 
-/* Get Public Message Count */
+/* Get Private Message Count */
 
 router.get('/messages/:id/count', auth, async (req, res) => {
 
